@@ -51,7 +51,7 @@ interface ResolvedType {
 
 const resolveType = (type: Type): ResolvedType => {
   const decl = type.getSymbol()?.getDeclarations()[0]
-  const parent = (type.getSymbol()?.compilerSymbol as any).parent as
+  const parent = (type.getSymbol()?.compilerSymbol as any)?.parent as
     | tsSymbol
     | undefined
   const refFile = (parent?.valueDeclaration as tsSourceFile | undefined)
