@@ -1,5 +1,4 @@
-import { SyntaxKind, TypeFormatFlags } from 'ts-morph'
-import type { Symbol as tsSymbol, SourceFile as tsSourceFile } from 'typescript'
+import { SyntaxKind, TypeFormatFlags, Node } from 'ts-morph'
 import type { Type, Symbol, SourceFile } from 'ts-morph'
 const deps = `
 import type { ExtractPropTypes } from 'vue'
@@ -24,16 +23,16 @@ const resolvePropRawType = (file: SourceFile, type: Type) => {
 const getDescription = (
   symbol: Symbol,
   name: string,
-  textFilter: Record<string, string> = {}
+  filter: Record<string, string> = {}
 ) =>
   symbol
     .getJsDocTags()
     .filter((tag) => {
       if (tag.getName() !== name) return false
 
-      if (textFilter) {
+      if (filter) {
         const text = tag.getText()
-        return Object.entries(textFilter).every(([kind, value]) =>
+        return Object.entries(filter).every(([kind, value]) =>
           text.some((text) => text.kind === kind && text.text === value)
         )
       }
@@ -43,110 +42,148 @@ const getDescription = (
     .map((tag) => tag.getText().find((text) => text.kind === 'text')?.text)
     .join('\n')
 
+interface TypeRef {
+  start: number
+  end: number
+  file: string
+  text?: string
+}
+
 interface ResolvedType {
-  ref?: { start: number; end: number }
-  refFile?: string
+  refs?: TypeRef[]
+  unionType?: ResolvedType[]
   text: string
 }
 
+const isTsLib = (filePath: string) =>
+  filePath.includes('node_modules/typescript/lib')
+
 const resolveType = (type: Type): ResolvedType => {
-  const decl = type.getSymbol()?.getDeclarations()[0]
-  const parent = (type.getSymbol()?.compilerSymbol as any)?.parent as
-    | tsSymbol
-    | undefined
-  const refFile = (parent?.valueDeclaration as tsSourceFile | undefined)
-    ?.fileName
-  return {
-    ref: decl ? { start: decl.getStart(), end: decl.getEnd() } : undefined,
-    refFile,
-    text: type.getText(undefined, TypeFormatFlags.InTypeAlias),
+  let refs: TypeRef[] | undefined = undefined
+  const decls = type.getSymbol()?.getDeclarations()
+  refs = (decls ?? []).map((decl) => {
+    const start = decl.getStart()
+    const end = decl.getEnd()
+    const file = decl.getSourceFile().getFilePath()
+    const text = !isTsLib(file) ? decl.getText() : undefined
+    return { start, end, file, text }
+  })
+
+  let unionType: ResolvedType[] | undefined = undefined
+  if (type.isUnion()) {
+    unionType = type.getUnionTypes().map((type) => resolveType(type))
   }
+  return {
+    refs,
+    unionType,
+    text: type.getText(
+      undefined,
+      TypeFormatFlags.InTypeAlias | TypeFormatFlags.NoTruncation
+    ),
+  }
+}
+
+export interface Prop {
+  name: string
+  type: ResolvedType
+  default: string
+  description: string
+  required: boolean
+}
+export interface Emit {
+  name: string
+  signatures: { name: string; type: ResolvedType }[][]
+  description: string
+}
+
+export const findInitializer = (symbol: Symbol | undefined) => {
+  if (!symbol) return undefined
+  const decl = symbol.getValueDeclaration()
+  if (Node.isInitializerExpressionGetable(decl)) {
+    return decl.getInitializer()
+  }
+  return undefined
 }
 
 export const parseTS = (sourceFile: SourceFile) => {
   sourceFile.addStatements(deps)
 
+  let componentName = ''
+  let props: Prop[] = []
+  let emits: Emit[] = []
+
   const assignment = sourceFile.getExportAssignmentOrThrow(() => true)
-  const callExpr = assignment
-    .getExpression()
-    .asKindOrThrow(SyntaxKind.CallExpression)
+  let callExpr = assignment.getExpression().asKind(SyntaxKind.CallExpression)
+  if (!callExpr) {
+    callExpr = findInitializer(assignment.getExpression().getSymbol())?.asKind(
+      SyntaxKind.CallExpression
+    )
+  }
+
+  if (!callExpr) return { componentName, props, emits }
 
   const componentOptions = callExpr
     .getArguments()?.[0]
     .asKind(SyntaxKind.ObjectLiteralExpression)
+    ?.getType()
 
-  let componentName = ''
   if (componentOptions) {
-    const nameProp = componentOptions.getProperty('name')
-    componentName =
-      nameProp
-        ?.asKind(SyntaxKind.PropertyAssignment)
-        ?.getInitializerIfKind(SyntaxKind.StringLiteral)
-        ?.getLiteralText() ?? ''
+    const nameDecl = componentOptions.getProperty('name')?.getValueDeclaration()
+    const nameType = nameDecl?.getType()
+    const init = findInitializer(nameDecl?.getSymbol())
+    if (init && Node.isStringLiteral(init)) {
+      componentName = init.getLiteralValue()
+    } else if (nameType?.isStringLiteral()) {
+      componentName = nameType.getLiteralValue() as string
+    }
   }
 
   const type = callExpr.getType()
-  if (type.getAliasSymbol()?.getName() !== 'DefineComponent') return
+  if (type.getAliasSymbol()?.getName() !== 'DefineComponent')
+    return { componentName, props, emits }
 
   const [propsType, , , , , , , emitsType] = type.getAliasTypeArguments()
-  let props: {
-    name: string
-    type: ResolvedType
-    default: string
-    description: string
-    required: boolean
-  }[] = []
-  let emits: {
-    name: string
-    signatures: { name: string; type: ResolvedType }[][]
-    description: string
-  }[] = []
 
   if (propsType.isObject()) {
-    props = propsType.getProperties().map((prop) => {
-      const name = prop.getName()
-      const description = getDescription(prop, 'description')
+    props = propsType
+      .getProperties()
+      .map((prop) => {
+        const name = prop.getName()
+        const description = getDescription(prop, 'description')
 
-      const initializer = prop
-        .getValueDeclarationOrThrow()
-        .asKindOrThrow(SyntaxKind.PropertyAssignment)
-        .getInitializerIfKindOrThrow(SyntaxKind.ObjectLiteralExpression)
+        const initializer = findInitializer(prop)?.getType()
+        if (!initializer) return undefined
 
-      const typeInitializer = initializer
-        .getPropertyOrThrow('type')
-        .asKindOrThrow(SyntaxKind.PropertyAssignment)
-        .getInitializerOrThrow()
-      const rawType = typeInitializer.getType()
-      let type: ResolvedType
-      if (rawType.getAliasSymbol()?.getName() === 'PropType') {
-        type = resolveType(rawType.getAliasTypeArguments()[0])
-      } else {
-        type = resolvePropRawType(sourceFile, rawType)
-      }
+        const typeInitializer = findInitializer(
+          initializer.getProperty('type')
+        )?.getType()
+        let type: ResolvedType
+        if (!typeInitializer) {
+          type = { text: 'any' }
+        } else if (typeInitializer.getAliasSymbol()?.getName() === 'PropType') {
+          type = resolveType(typeInitializer.getAliasTypeArguments()[0])
+        } else {
+          type = resolvePropRawType(sourceFile, typeInitializer)
+        }
 
-      const defaultValue =
-        initializer
-          .getProperty('default')
-          ?.asKindOrThrow(SyntaxKind.PropertyAssignment)
-          .getInitializerOrThrow()
-          .getType()
-          .getText() ?? ''
-      const required =
-        initializer
-          .getProperty('required')
-          ?.asKindOrThrow(SyntaxKind.PropertyAssignment)
-          .getInitializerOrThrow()
-          .getType()
-          .getText() === 'true' ?? false
+        const defaultValue =
+          findInitializer(initializer.getProperty('default'))
+            ?.getType()
+            .getText() ?? ''
+        const required =
+          findInitializer(initializer.getProperty('required'))
+            ?.getType()
+            .getText() === 'true' ?? false
 
-      return {
-        name,
-        type,
-        default: defaultValue,
-        description,
-        required,
-      }
-    })
+        return {
+          name,
+          type,
+          default: defaultValue,
+          description,
+          required,
+        }
+      })
+      .filter((prop): prop is Prop => !!prop)
   }
 
   if (emitsType.isObject()) {

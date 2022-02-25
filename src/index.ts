@@ -6,5 +6,5 @@ const project = new Project({
 })
 project.addSourceFilesAtPaths('./playground/*.ts')
 
-const result = parseTS(project.getSourceFile('./playground/test.ts')!)
+const result = parseTS(project.getSourceFile('./playground/col.ts')!)
 console.log(JSON.stringify(result, undefined, 2))
