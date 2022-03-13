@@ -1,5 +1,7 @@
 import { SyntaxKind, TypeFormatFlags, Node } from 'ts-morph'
-import type { Type, Symbol, SourceFile } from 'ts-morph'
+import { findInitializer, getDescription, isTsLib } from './utils'
+import type { Type, SourceFile } from 'ts-morph'
+
 const deps = `
 import type { ExtractPropTypes } from 'vue'
 type ResolveProp<T> = ExtractPropTypes<{
@@ -20,28 +22,6 @@ const resolvePropRawType = (file: SourceFile, type: Type) => {
   return resolved
 }
 
-const getDescription = (
-  symbol: Symbol,
-  name: string,
-  filter: Record<string, string> = {}
-) =>
-  symbol
-    .getJsDocTags()
-    .filter((tag) => {
-      if (tag.getName() !== name) return false
-
-      if (filter) {
-        const text = tag.getText()
-        return Object.entries(filter).every(([kind, value]) =>
-          text.some((text) => text.kind === kind && text.text === value)
-        )
-      }
-
-      return true
-    })
-    .map((tag) => tag.getText().find((text) => text.kind === 'text')?.text)
-    .join('\n')
-
 interface TypeRef {
   start: number
   end: number
@@ -54,9 +34,6 @@ interface ResolvedType {
   unionType?: ResolvedType[]
   text: string
 }
-
-const isTsLib = (filePath: string) =>
-  filePath.includes('node_modules/typescript/lib')
 
 const resolveType = (type: Type): ResolvedType => {
   let refs: TypeRef[] | undefined = undefined
@@ -94,15 +71,6 @@ export interface Emit {
   name: string
   signatures: { name: string; type: ResolvedType }[][]
   description: string
-}
-
-export const findInitializer = (symbol: Symbol | undefined) => {
-  if (!symbol) return undefined
-  const decl = symbol.getValueDeclaration()
-  if (Node.isInitializerExpressionGetable(decl)) {
-    return decl.getInitializer()
-  }
-  return undefined
 }
 
 export const parseTS = (sourceFile: SourceFile) => {
