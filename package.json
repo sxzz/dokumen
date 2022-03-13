@@ -24,22 +24,22 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@volar/shared": "^0.31.4",
-    "ts-morph": "^13.0.3",
-    "vscode-vue-languageservice": "^0.31.4"
+    "@volar/shared": "^0.33.1",
+    "@volar/vue-language-service": "^0.33.1",
+    "ts-morph": "^14.0.0"
   },
   "devDependencies": {
-    "@sxzz/eslint-config-prettier": "^1.6.1",
-    "@sxzz/eslint-config-ts": "^1.6.2",
+    "@sxzz/eslint-config-prettier": "^1.7.0",
+    "@sxzz/eslint-config-ts": "^1.7.0",
     "@types/node": "*",
-    "eslint": "^8.9.0",
+    "eslint": "^8.11.0",
     "eslint-define-config": "^1.2.5",
     "esno": "^0.14.1",
     "fast-glob": "^3.2.11",
     "prettier": "^2.5.1",
-    "tsup": "^5.11.13",
-    "typescript": "^4.5.5",
-    "vitest": "^0.5.5",
+    "tsup": "^5.12.1",
+    "typescript": "^4.6.2",
+    "vitest": "^0.6.0",
     "vue": "^3.2.31"
   }
 }
