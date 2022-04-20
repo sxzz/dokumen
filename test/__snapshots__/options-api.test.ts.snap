@@ -1,0 +1,189 @@
+// Vitest Snapshot v1
+
+exports[`Options API 1`] = `
+[
+  {
+    "componentName": "ElHello",
+    "emits": [
+      {
+        "description": "onclick",
+        "name": "click",
+        "signatures": [
+          [
+            {
+              "description": "事件",
+              "name": "evt",
+              "type": {
+                "refs": [
+                  {
+                    "end": 227286,
+                    "file": "/node_modules/typescript/lib/lib.dom.d.ts",
+                    "start": 226435,
+                    "text": undefined,
+                  },
+                  {
+                    "end": 227390,
+                    "file": "/node_modules/typescript/lib/lib.dom.d.ts",
+                    "start": 227298,
+                    "text": undefined,
+                  },
+                ],
+                "text": "MouseEvent",
+                "unionType": undefined,
+              },
+            },
+            {
+              "description": "名称",
+              "name": "name",
+              "type": {
+                "refs": [],
+                "text": "string",
+                "unionType": undefined,
+              },
+            },
+          ],
+        ],
+      },
+      {
+        "description": "123",
+        "name": "remove",
+        "signatures": [
+          [
+            {
+              "description": "姓名",
+              "name": "name",
+              "type": {
+                "refs": [],
+                "text": "string",
+                "unionType": undefined,
+              },
+            },
+          ],
+          [
+            {
+              "description": "",
+              "name": "key",
+              "type": {
+                "refs": [],
+                "text": "number",
+                "unionType": undefined,
+              },
+            },
+          ],
+        ],
+      },
+    ],
+    "props": [
+      {
+        "default": "",
+        "description": "foo 描述",
+        "name": "foo",
+        "required": true,
+        "type": {
+          "refs": [],
+          "text": "string",
+          "unionType": undefined,
+        },
+      },
+      {
+        "default": "123",
+        "description": "",
+        "name": "bar",
+        "required": false,
+        "type": {
+          "refs": [],
+          "text": "number",
+          "unionType": undefined,
+        },
+      },
+      {
+        "default": "\\"123\\"",
+        "description": "测试 baz
+测试123",
+        "name": "baz",
+        "required": false,
+        "type": {
+          "refs": [],
+          "text": "string",
+          "unionType": undefined,
+        },
+      },
+      {
+        "default": "",
+        "description": "",
+        "name": "custom",
+        "required": true,
+        "type": {
+          "refs": [
+            {
+              "end": 792,
+              "file": "test/fixtures/options.vue.ts",
+              "start": 766,
+              "text": "() => boolean | CustomType",
+            },
+          ],
+          "text": "() => boolean | CustomType",
+          "unionType": undefined,
+        },
+      },
+      {
+        "default": "",
+        "description": "",
+        "name": "date",
+        "required": false,
+        "type": {
+          "refs": [
+            {
+              "end": 8274,
+              "file": "/node_modules/typescript/lib/lib.es5.d.ts",
+              "start": 6960,
+              "text": undefined,
+            },
+            {
+              "end": 8656,
+              "file": "/node_modules/typescript/lib/lib.es5.d.ts",
+              "start": 8636,
+              "text": undefined,
+            },
+            {
+              "end": 46260,
+              "file": "/node_modules/typescript/lib/lib.es5.d.ts",
+              "start": 45984,
+              "text": undefined,
+            },
+            {
+              "end": 880,
+              "file": "/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts",
+              "start": 686,
+              "text": undefined,
+            },
+          ],
+          "text": "Date",
+          "unionType": undefined,
+        },
+      },
+      {
+        "default": "",
+        "description": "",
+        "name": "mixed",
+        "required": false,
+        "type": {
+          "refs": [
+            {
+              "end": 54,
+              "file": "test/fixtures/_utils/types.ts",
+              "start": 0,
+              "text": "export interface Interface {
+  a: string
+  b: number
+}",
+            },
+          ],
+          "text": "Interface",
+          "unionType": undefined,
+        },
+      },
+    ],
+  },
+]
+`;
