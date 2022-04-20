@@ -1,11 +1,11 @@
-# vue-docgen [![npm](https://img.shields.io/npm/v/vue-docgen.svg)](https://npmjs.com/package/vue-docgen)
+# vuedoc [![npm](https://img.shields.io/npm/v/vuedoc.svg)](https://npmjs.com/package/vuedoc)
 
-[![Unit Test](https://github.com/sxzz/vue-docgen/actions/workflows/unit-test.yml/badge.svg)](https://github.com/sxzz/vue-docgen/actions/workflows/unit-test.yml)
+[![Unit Test](https://github.com/sxzz/vuedoc/actions/workflows/unit-test.yml/badge.svg)](https://github.com/sxzz/vuedoc/actions/workflows/unit-test.yml)
 
 ## Install
 
 ```bash
-npm i vue-docgen
+npm i vuedoc
 ```
 
 ## License

@@ -1,7 +1,7 @@
 {
-  "name": "vue-docgen",
+  "name": "vuedoc",
   "version": "0.0.0",
-  "description": "Vue Component Docs Generator",
+  "description": "Vue 3 Component Doc Generator",
   "license": "MIT",
   "files": [
     "dist"
