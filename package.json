@@ -25,22 +25,20 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@volar/shared": "^0.34.7",
-    "@volar/vue-typescript": "^0.34.7",
-    "ts-morph": "^14.0.0"
+    "@vue/compiler-sfc": "^3.2.33",
+    "ts-morph": "^14.0.0",
+    "typescript": "^4.6.3"
   },
   "devDependencies": {
     "@sxzz/eslint-config-prettier": "^2.1.1",
     "@sxzz/eslint-config-ts": "^2.1.1",
     "@types/node": "*",
-    "@vue/compiler-sfc": "^3.2.33",
     "eslint": "^8.13.0",
     "eslint-define-config": "^1.3.0",
     "esno": "^0.14.1",
     "fast-glob": "^3.2.11",
     "prettier": "^2.6.2",
     "tsup": "^5.12.5",
-    "typescript": "^4.6.3",
     "vitest": "^0.9.3",
     "vue": "^3.2.33",
     "vue-tsc": "^0.34.7"
