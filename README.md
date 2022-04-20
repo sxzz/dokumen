@@ -1,11 +1,11 @@
-# vuedoc [![npm](https://img.shields.io/npm/v/vuedoc.svg)](https://npmjs.com/package/vuedoc)
+# dokumen [![npm](https://img.shields.io/npm/v/dokumen.svg)](https://npmjs.com/package/dokumen)
 
-[![Unit Test](https://github.com/sxzz/vuedoc/actions/workflows/unit-test.yml/badge.svg)](https://github.com/sxzz/vuedoc/actions/workflows/unit-test.yml)
+[![Unit Test](https://github.com/sxzz/dokumen/actions/workflows/unit-test.yml/badge.svg)](https://github.com/sxzz/dokumen/actions/workflows/unit-test.yml)
 
 ## Install
 
 ```bash
-npm i vuedoc
+npm i dokumen
 ```
 
 ## License
