@@ -1,5 +1,6 @@
 import { Node } from 'ts-morph'
 import type { Symbol } from 'ts-morph'
+import type {} from '@ts-morph/common'
 
 export const getDescription = (
   symbol: Symbol,
@@ -25,8 +26,6 @@ export const getDescription = (
 
 export const isTsLib = (filePath: string) =>
   filePath.includes('node_modules/typescript/lib')
-
-// export const resolveType = (symbol: Symbol) => {}
 
 export const findInitializer = (symbol: Symbol | undefined) => {
   if (!symbol) return undefined

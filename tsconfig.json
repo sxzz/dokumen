@@ -10,7 +10,8 @@
     "noUnusedLocals": true,
     "resolveJsonModule": true,
     "types": ["node"],
-    "rootDir": "."
+    "rootDir": ".",
+    "declaration": true
   },
   "include": ["src", "tests", "scripts", "playground"],
   "exclude": ["tests/fixtures"]
